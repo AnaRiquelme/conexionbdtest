@@ -4,12 +4,17 @@
  */
 package net.anariquelme.control;
 
+import com.google.gson.Gson;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import net.anariquelme.operaciones.GenericOperation;
 
 /**
  *
@@ -17,39 +22,46 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class ControlJson extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP
-     * <code>GET</code> and
-     * <code>POST</code> methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
-        try {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet ControlJson</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet ControlJson at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        } finally {            
-            out.close();
+            throws ServletException, IOException, Exception {
+        //retardo debug
+//        try {
+//            Thread.sleep(80);
+//        } catch (InterruptedException ex) {
+//            Thread.currentThread().interrupt();
+//        }
+        //control de autenticación
+        if (request.getSession().getAttribute("usuarioBean") == null) {
+            Gson gson = new Gson();
+            Map<String, String> data = new HashMap<>();
+            data.put("status", "401");
+            data.put("message", "error de autenticación");
+            String resultado = gson.toJson(data);
+            request.setAttribute("contenido", resultado);
+            getServletContext().getRequestDispatcher("/jsp/messageAjax.jsp").forward(request, response);
+        } else {
+            String op = request.getParameter("op");
+            String ob = request.getParameter("ob");
+            String callop = Character.toUpperCase(ob.charAt(0)) + ob.substring(1) + Character.toUpperCase(op.charAt(0)) + op.substring(1);
+            try {
+                try {
+                    GenericOperation operation = (GenericOperation) Class.forName("net.rafaelaznar.operaciones." + callop).newInstance();
+                    String data = operation.execute(request, response);
+                    request.setAttribute("contenido", data);
+                    getServletContext().getRequestDispatcher("/jsp/messageAjax.jsp").forward(request, response);
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(ControlJson.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } catch (InstantiationException | IllegalAccessException ex) {
+                Logger.getLogger(ControlJson.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+// <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
-     * Handles the HTTP
-     * <code>GET</code> method.
+     * Handles the HTTP <code>GET</code> method.
      *
      * @param request servlet request
      * @param response servlet response
@@ -59,12 +71,18 @@ public class ControlJson extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            processRequest(request, response);
+
+        } catch (Exception ex) {
+            Logger.getLogger(ControlJson.class
+                    .getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 
     /**
-     * Handles the HTTP
-     * <code>POST</code> method.
+     * Handles the HTTP <code>POST</code> method.
      *
      * @param request servlet request
      * @param response servlet response
@@ -74,7 +92,13 @@ public class ControlJson extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            processRequest(request, response);
+
+        } catch (Exception ex) {
+            Logger.getLogger(ControlJson.class
+                    .getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
