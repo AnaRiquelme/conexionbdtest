@@ -2,11 +2,11 @@
 <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
     <servlet>
         <servlet-name>ControlJsp</servlet-name>
-        <servlet-class>net.anariquelme.operaciones.ControlJsp</servlet-class>
+        <servlet-class>net.anariquelme.control.ControlJsp</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ControlJson</servlet-name>
-        <servlet-class>net.anariquelme.operaciones.ControlJson</servlet-class>
+        <servlet-class>net.anariquelme.control.ControlJson</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>ControlJsp</servlet-name>
@@ -14,7 +14,7 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ControlJson</servlet-name>
-        <url-pattern>/ControlJson</url-pattern>
+        <url-pattern>/json</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
